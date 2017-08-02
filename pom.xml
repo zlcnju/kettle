@@ -76,6 +76,20 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <artifactId>FineEngine</artifactId>
+        <groupId>com.finereport.engine</groupId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>D:/work/code/new distributed/core/lib/FineDirect-1.0.jar</systemPath>
+      </dependency>
+      <dependency>
+        <groupId>com.finereport.engine</groupId>
+        <artifactId>distributed</artifactId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>D:/work/code/new distributed/target/Distributed-1.0.jar</systemPath>
+      </dependency>
+      <dependency>
         <groupId>pentaho</groupId>
         <artifactId>pentaho-xul-core</artifactId>
         <version>${pentaho-xul.version}</version>

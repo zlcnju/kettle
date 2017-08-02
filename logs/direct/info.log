@@ -1,0 +1,17 @@
+2017-08-02 09:15:48  [ Distributed-Log 分布式插件 - 分布式全量加载:0 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for zlctest, row count: 4
+2017-08-02 09:15:48  [ Distributed-Log 分布式插件 - 分布式全量加载:37 ] - [ INFO ] db.table.AbstractPartitionCombiner.combine(AbstractPartitionCombiner.java:58)  table zlctest doesn't meet the combining requirements, return
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64867 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for zlctest, row count: 4
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64880 ] - [ INFO ] db.table.AbstractPartitionCombiner.combine(AbstractPartitionCombiner.java:47)  table zlctest starts combing partitions [UPDATED.PARTITION_1, UPDATED.PARTITION_2, UPDATED.PARTITION_3]
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64949 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for zlctest, row count: 12
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64969 ] - [ INFO ] local.LocalPartitionCombiner.removeUpdatedPartitions(LocalPartitionCombiner.java:29)  delete partition UPDATED.PARTITION_1
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64975 ] - [ INFO ] local.LocalPartitionCombiner.removeUpdatedPartitions(LocalPartitionCombiner.java:29)  delete partition UPDATED.PARTITION_2
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64981 ] - [ INFO ] local.LocalPartitionCombiner.removeUpdatedPartitions(LocalPartitionCombiner.java:29)  delete partition UPDATED.PARTITION_3
+2017-08-02 09:16:53  [ Distributed-Log 分布式插件 - 分布式全量加载:64982 ] - [ INFO ] db.table.AbstractPartitionCombiner.combine(AbstractPartitionCombiner.java:56)  partition combine end
+2017-08-02 11:45:34  [ Distributed-Log 分布式插件 - 分布式全量加载:0 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for ss, row count: 4
+2017-08-02 11:45:34  [ Distributed-Log 分布式插件 - 分布式全量加载:22 ] - [ INFO ] db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)  table ss doesn't meet the combining requirements, return
+2017-08-02 11:49:30  [ Distributed-Log 分布式插件 - 分布式全量加载:236109 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for ss, row count: 4
+2017-08-02 11:49:30  [ Distributed-Log 分布式插件 - 分布式全量加载:236119 ] - [ INFO ] db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)  table ss doesn't meet the combining requirements, return
+2017-08-02 11:52:09  [ Distributed-Log 分布式插件 - 分布式全量加载:395438 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for ss, row count: 4
+2017-08-02 11:52:09  [ Distributed-Log 分布式插件 - 分布式全量加载:395449 ] - [ INFO ] db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)  table ss doesn't meet the combining requirements, return
+2017-08-02 11:57:06  [ Distributed-Log 分布式插件 - 分布式全量加载:691794 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)  One partition ready for ss, row count: 4
+2017-08-02 11:57:06  [ Distributed-Log 分布式插件 - 分布式全量加载:691811 ] - [ INFO ] db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)  table ss doesn't meet the combining requirements, return

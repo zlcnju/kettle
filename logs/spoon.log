@@ -1,0 +1,54 @@
+2017/08/02 11:45:33 - Spoon - Using legacy execution engine
+2017/08/02 11:45:33 - Spoon - 转换已经打开.
+2017/08/02 11:45:33 - Spoon - 正在打开转换 [分布式插件]...
+2017/08/02 11:45:33 - Spoon - 开始执行转换.
+2017/08/02 11:45:33 - 分布式插件 - 为了转换解除补丁开始  [分布式插件]
+2017/08/02 11:45:34 - 文本文件输入.0 - Opening file: file:///D:/kettle/分布式导入/test.txt
+2017/08/02 11:45:34 - 文本文件输入.0 - 完成处理 (I=5, O=0, R=0, W=4, U=1, E=0)
+[INFO ] Distributed-Log 2017-08-02 11:45:34,514 method:db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)
+One partition ready for ss, row count: 4
+[INFO ] Distributed-Log 2017-08-02 11:45:34,536 method:db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)
+table ss doesn't meet the combining requirements, return
+2017/08/02 11:45:34 - 分布式全量加载.0 - 完成处理 (I=0, O=0, R=4, W=0, U=0, E=0)
+2017/08/02 11:45:34 - Spoon - 转换完成!!
+2017/08/02 11:49:30 - Spoon - Using legacy execution engine
+2017/08/02 11:49:30 - Spoon - 转换已经打开.
+2017/08/02 11:49:30 - Spoon - 正在打开转换 [分布式插件]...
+2017/08/02 11:49:30 - Spoon - 开始执行转换.
+2017/08/02 11:49:30 - 分布式插件 - 为了转换解除补丁开始  [分布式插件]
+2017/08/02 11:49:30 - 文本文件输入.0 - Opening file: file:///D:/kettle/分布式导入/test.txt
+2017/08/02 11:49:30 - 文本文件输入.0 - 完成处理 (I=5, O=0, R=0, W=4, U=1, E=0)
+[INFO ] Distributed-Log 2017-08-02 11:49:30,623 method:db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)
+One partition ready for ss, row count: 4
+[INFO ] Distributed-Log 2017-08-02 11:49:30,633 method:db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)
+table ss doesn't meet the combining requirements, return
+2017/08/02 11:51:56 - 分布式全量加载.0 - 完成处理 (I=0, O=0, R=4, W=0, U=0, E=0)
+2017/08/02 11:51:56 - Spoon - 转换完成!!
+2017/08/02 11:52:09 - Spoon - Using legacy execution engine
+2017/08/02 11:52:09 - Spoon - 转换已经打开.
+2017/08/02 11:52:09 - Spoon - 正在打开转换 [分布式插件]...
+2017/08/02 11:52:09 - Spoon - 开始执行转换.
+2017/08/02 11:52:09 - 分布式插件 - 为了转换解除补丁开始  [分布式插件]
+2017/08/02 11:52:09 - 文本文件输入.0 - Opening file: file:///D:/kettle/分布式导入/test.txt
+2017/08/02 11:52:09 - 文本文件输入.0 - 完成处理 (I=5, O=0, R=0, W=4, U=1, E=0)
+[INFO ] Distributed-Log 2017-08-02 11:52:09,952 method:db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)
+One partition ready for ss, row count: 4
+[INFO ] Distributed-Log 2017-08-02 11:52:09,963 method:db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)
+table ss doesn't meet the combining requirements, return
+2017/08/02 11:56:39 - 分布式全量加载.0 - 完成处理 (I=0, O=0, R=4, W=0, U=0, E=0)
+2017/08/02 11:56:39 - Spoon - 转换完成!!
+2017/08/02 11:57:06 - Spoon - Using legacy execution engine
+2017/08/02 11:57:06 - Spoon - 转换已经打开.
+2017/08/02 11:57:06 - Spoon - 正在打开转换 [分布式插件]...
+2017/08/02 11:57:06 - Spoon - 开始执行转换.
+2017/08/02 11:57:06 - 分布式插件 - 为了转换解除补丁开始  [分布式插件]
+2017/08/02 11:57:06 - 文本文件输入.0 - Opening file: file:///D:/kettle/分布式导入/test.txt
+2017/08/02 11:57:06 - 文本文件输入.0 - 完成处理 (I=5, O=0, R=0, W=4, U=1, E=0)
+[INFO ] Distributed-Log 2017-08-02 11:57:06,308 method:db.table.writer.MassDataWriter.commit(MassDataWriter.java:86)
+One partition ready for ss, row count: 4
+[INFO ] Distributed-Log 2017-08-02 11:57:06,325 method:db.table.PartitionCombineWorker.combine(PartitionCombineWorker.java:59)
+table ss doesn't meet the combining requirements, return
+2017/08/02 11:57:11 - 分布式全量加载.0 - 完成处理 (I=0, O=0, R=4, W=0, U=0, E=0)
+2017/08/02 11:57:11 - Spoon - 转换完成!!
+2017/08/02 11:58:22 - org.pentaho.di.verticabulkload.VerticaBulkLoaderMeta@59b32539 - ERROR (version Unknown, build 0 from 2017/08/02 11:44:36.299 by hasee) : org.pentaho.di.ui.verticabulkload.VerticaBulkLoaderDialog$7@7592bb70
+2017/08/02 11:58:41 - org.pentaho.di.trans.steps.scriptvalues_mod.ScriptValuesMetaMod@1cd43562 - ERROR (version Unknown, build 0 from 2017/08/02 11:44:36.299 by hasee) : 因为一个错误无法从以前的步骤里获取字段

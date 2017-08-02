@@ -154,5 +154,13 @@
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.finereport.engine</groupId>
+      <artifactId>distributed</artifactId>
+    </dependency>
+    <dependency>
+      <artifactId>FineEngine</artifactId>
+      <groupId>com.finereport.engine</groupId>
+    </dependency>
   </dependencies>
 </project>

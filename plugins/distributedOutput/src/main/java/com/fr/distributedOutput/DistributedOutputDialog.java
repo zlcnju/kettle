@@ -1,273 +1,363 @@
 package com.fr.distributedOutput;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-
+import org.eclipse.swt.widgets.*;
 import org.pentaho.di.core.Const;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.i18n.BaseMessages;
+import org.pentaho.di.core.Props;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
 
-public class distributedOutputDialog extends BaseStepDialog implements StepDialogInterface
-{
+public class DistributedOutputDialog extends BaseStepDialog implements StepDialogInterface {
+    private int middle;
+    private int margin;
 
-    private CCombo       wConnection;
+    private Label wlPropertyFile;
+    private Text wPropertyFile;
+    private Button wbPropertyFile;
+    private FormData fdlPropertyFile, fdPropertyFile, fdbPropertyFile;
 
-    private Label        wlFieldName;
-    private Text         wFieldName;
-    private FormData     fdlFieldName, fdFieldName;
+    private Label wlDBName;
+    private Text wDBName;
+    private FormData fdlDBName, fdDBName;
 
-    private Label        wlNewFieldName;
-    private Text         wNewFieldName;
-    private FormData     fdlNewFieldName, fdNewFieldName;
+    private Label wlTableName;
+    private Text wTableName;
+    private FormData fdlTableName, fdTableName;
 
-    private Label        wlFixPreN;
-    private Button       wFixPreN;
-    private FormData     fdlFixPreN, fdFixPreN;
+    private Label wlUseTempTable;
+    private Button wbUseTempTable;
+    private FormData fdlUseTempTable, fdUseTempTable;
 
-    private Label        wlNumberN;
-    private Text         wNumberN;
-    private FormData     fdlN, fdN;
+    private Label wlTempTableName;
+    private Text wTempTableName;
+    private FormData fdlTempTableName, fdTempTableName;
 
-    private Label        wlReplaceChars;
-    private Text         wReplaceChars;
-    private FormData     fdlReplaceChars, fdReplaceChars;
+    private CTabFolder wConfigTabFolder;
+    private FormData fdConfigTabFolder;
 
-//    private ObfusMeta meta;
+    //main tab
+    private CTabItem wMainConfigTab;
+    private Composite wMainConfigComp;
+    private FormLayout mainConfigLayout;
 
-    public distributedOutputDialog(Shell parent, Object in, TransMeta tr, String sname)
-    {
-        super(parent, (BaseStepMeta)in, tr, sname);
-//        meta=(ObfusMeta)in;
+    private Label wlExceptionLogFileName;
+    private Button wbExceptionLogFileName;
+    private Text wExceptionLogFileName;
+    private FormData fdlExceptionLogFileName, fdbExceptionLogFileName, fdExceptionLogFileName;
+
+    //table operate tab
+    private CTabItem wTableOperateTab;
+    private Composite wTableOperateComp;
+
+    private DistributedOutputMeta meta;
+
+    public DistributedOutputDialog(Shell parent, Object in, TransMeta tr, String sname) {
+        super(parent, (BaseStepMeta) in, tr, sname);
+        meta = (DistributedOutputMeta) in;
     }
 
-    public String open()
-    {
+    public String open() {
+        middle = props.getMiddlePct();
+        margin = Const.MARGIN;
+
         Shell parent = getParent();
         Display display = parent.getDisplay();
 
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
         props.setLook(shell);
+        setShellImage(shell, meta);
 
-        ModifyListener lsMod = new ModifyListener()
-        {
-            public void modifyText(ModifyEvent e)
-            {
-//                meta.setChanged();
+        ModifyListener lsMod = new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                meta.setChanged();
             }
         };
-//        changed = meta.hasChanged();
 
-        FormLayout formLayout = new FormLayout ();
-        formLayout.marginWidth  = Const.FORM_MARGIN;
+
+        FormLayout formLayout = new FormLayout();
+        formLayout.marginWidth = Const.FORM_MARGIN;
         formLayout.marginHeight = Const.FORM_MARGIN;
 
         shell.setLayout(formLayout);
         shell.setText(Messages.getString("DistributedOutput.Shell.Title"));
 
-        int middle = props.getMiddlePct();
-        int margin = Const.MARGIN;
-
         // Stepname line
-        wlStepname=new Label(shell, SWT.RIGHT);
-        wlStepname.setText("ObfusDialog.Stepname.Label"); //$NON-NLS-1$
+        wlStepname = new Label(shell, SWT.RIGHT);
+        wlStepname.setText(Messages.getString("System.Label.StepName"));
         props.setLook(wlStepname);
-        fdlStepname=new FormData();
+        fdlStepname = new FormData();
         fdlStepname.left = new FormAttachment(0, 0);
-        fdlStepname.top  = new FormAttachment(0, margin);
-        fdlStepname.right= new FormAttachment(middle, -margin);
+        fdlStepname.right = new FormAttachment(middle, -margin);
+        fdlStepname.top = new FormAttachment(0, margin);
         wlStepname.setLayoutData(fdlStepname);
-        wStepname=new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+
+        wStepname = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
         wStepname.setText(stepname);
         props.setLook(wStepname);
         wStepname.addModifyListener(lsMod);
-        fdStepname=new FormData();
+        fdStepname = new FormData();
         fdStepname.left = new FormAttachment(middle, 0);
-        fdStepname.top  = new FormAttachment(0, margin);
-        fdStepname.right= new FormAttachment(100, 0);
+        fdStepname.top = new FormAttachment(0, margin);
+        fdStepname.right = new FormAttachment(100, 0);
         wStepname.setLayoutData(fdStepname);
 
-        // FieldName
-        wlFieldName = new Label(shell, SWT.RIGHT);
-        wlFieldName.setText("ObfusDialog.fieldName.Label"); //$NON-NLS-1$
-        props.setLook(wlFieldName);
-        fdlFieldName = new FormData();
-        fdlFieldName.left = new FormAttachment(0, 0);
-        fdlFieldName.top = new FormAttachment(wStepname, margin);
-        fdlFieldName.right = new FormAttachment(middle, -margin);
-        wlFieldName.setLayoutData(fdlFieldName);
-        wFieldName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-        props.setLook(wFieldName);
-        fdFieldName = new FormData();
-        fdFieldName.left = new FormAttachment(middle, 0);
-        fdFieldName.top = new FormAttachment(wStepname, margin);
-        fdFieldName.right = new FormAttachment(100, 0);
-        wFieldName.setLayoutData(fdFieldName);
+        wlPropertyFile = new Label(shell, SWT.RIGHT);
+        wlPropertyFile.setText(Messages.getString("property fileName"));
+        props.setLook(wlPropertyFile);
+        fdlPropertyFile = new FormData();
+        fdlPropertyFile.left = new FormAttachment(0, 0);
+        fdlPropertyFile.right = new FormAttachment(middle, -margin);
+        fdlPropertyFile.top = new FormAttachment(wStepname, margin + 5);
+        wlPropertyFile.setLayoutData(fdlPropertyFile);
+        wbPropertyFile = new Button(shell, SWT.PUSH | SWT.CENTER);
+        props.setLook(wbPropertyFile);
+        wbPropertyFile.setText(Messages.getString("browse"));
+        fdbPropertyFile = new FormData();
+        fdbPropertyFile.right = new FormAttachment(100, 0);
+        fdbPropertyFile.top = new FormAttachment(wStepname, margin + 5);
+        wbPropertyFile.setLayoutData(fdbPropertyFile);
+        wPropertyFile = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        props.setLook(wPropertyFile);
+        fdPropertyFile = new FormData();
+        fdPropertyFile.left = new FormAttachment(middle, 0);
+        fdPropertyFile.right = new FormAttachment(wbPropertyFile, -margin);
+        fdPropertyFile.top = new FormAttachment(wStepname, margin + 5);
+        wPropertyFile.setLayoutData(fdPropertyFile);
 
-        // NewFieldName
-        wlNewFieldName = new Label(shell, SWT.RIGHT);
-        wlNewFieldName.setText("ObfusDialog.newFieldName.Label"); //$NON-NLS-1$
-        props.setLook(wlNewFieldName);
-        fdlNewFieldName = new FormData();
-        fdlNewFieldName.left = new FormAttachment(0, 0);
-        fdlNewFieldName.top = new FormAttachment(wFieldName, margin);
-        fdlNewFieldName.right = new FormAttachment(middle, -margin);
-        wlNewFieldName.setLayoutData(fdlNewFieldName);
-        wNewFieldName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-        props.setLook(wNewFieldName);
-        fdNewFieldName = new FormData();
-        fdNewFieldName.left = new FormAttachment(middle, 0);
-        fdNewFieldName.top = new FormAttachment(wFieldName, margin);
-        fdNewFieldName.right = new FormAttachment(100, 0);
-        wNewFieldName.setLayoutData(fdNewFieldName);
+        wbPropertyFile.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+                dialog.setFilterExtensions(new String[]{"*.properties", "*"});
+                if (wPropertyFile.getText() != null) {
+                    dialog.setFileName(wPropertyFile.getText());
+                }
+                dialog.setFilterNames(new String[]{
+                        Messages.getString("*.properties"),
+                        Messages.getString("所有文件")});
+                if (dialog.open() != null) {
+                    wPropertyFile.setText(dialog.getFilterPath()
+                            + System.getProperty("file.separator") + dialog.getFileName());
+                }
+            }
+        });
 
-        // Fix pre N check box
-        wlFixPreN = new Label(shell, SWT.RIGHT);
-        wlFixPreN.setText("ObfusDialog.FixPreN.label"); //$NON-NLS-1$
-        props.setLook(wlFixPreN);
-        fdlFixPreN = new FormData();
-        fdlFixPreN.left = new FormAttachment(0, 0);
-        fdlFixPreN.top = new FormAttachment(wNewFieldName, margin);
-        fdlFixPreN.right = new FormAttachment(middle, -margin);
-        wlFixPreN.setLayoutData(fdlFixPreN);
-        wFixPreN = new Button(shell, SWT.CHECK);
-        props.setLook(wFixPreN);
-        fdFixPreN= new FormData();
-        fdFixPreN.left = new FormAttachment(middle, 0);
-        fdFixPreN.top = new FormAttachment(wNewFieldName, margin);
-        fdFixPreN.right = new FormAttachment(100, 0);
-        wFixPreN.setLayoutData(fdFixPreN);
+        wlDBName = new Label(shell, SWT.RIGHT);
+        props.setLook(wlDBName);
+        wlDBName.setText("dest DB name");
+        fdlDBName = new FormData();
+        fdlDBName.left = new FormAttachment(0, 0);
+        fdlDBName.right = new FormAttachment(middle, -margin);
+        fdlDBName.top = new FormAttachment(wbPropertyFile, margin);
+        wlDBName.setLayoutData(fdlDBName);
+        wDBName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        fdDBName = new FormData();
+        fdDBName.left = new FormAttachment(middle, 0);
+        fdDBName.right = new FormAttachment(100, 0);
+        fdDBName.top = new FormAttachment(wbPropertyFile, margin);
+        wDBName.setLayoutData(fdDBName);
 
+        wlTableName = new Label(shell, SWT.RIGHT);
+        props.setLook(wlTableName);
+        wlTableName.setText("dest tableName name");
+        fdlTableName = new FormData();
+        fdlTableName.left = new FormAttachment(0, 0);
+        fdlTableName.right = new FormAttachment(middle, -margin);
+        fdlTableName.top = new FormAttachment(wDBName, margin);
+        wlTableName.setLayoutData(fdlTableName);
+        wTableName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        fdTableName = new FormData();
+        fdTableName.left = new FormAttachment(middle, 0);
+        fdTableName.right = new FormAttachment(100, 0);
+        fdTableName.top = new FormAttachment(wDBName, margin);
+        wTableName.setLayoutData(fdTableName);
 
-        //N
-        wlNumberN = new Label(shell, SWT.RIGHT);
-        wlNumberN.setText("ObfusDialog.N.Label"); //$NON-NLS-1$
-        props.setLook(wlNumberN);
-        fdlN = new FormData();
-        fdlN.left = new FormAttachment(0, 0);
-        fdlN.top = new FormAttachment(wFixPreN, margin);
-        fdlN.right = new FormAttachment(middle, -margin);
-        wlNumberN.setLayoutData(fdlN);
-        wNumberN = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-        props.setLook(wNumberN);
-        fdN = new FormData();
-        fdN.left = new FormAttachment(middle, 0);
-        fdN.top = new FormAttachment(wFixPreN, margin);
-        fdN.right = new FormAttachment(100, 0);
-        wNumberN.setLayoutData(fdN);
+        wlUseTempTable = new Label(shell, SWT.RIGHT);
+        wlUseTempTable.setText(Messages.getString("use temp table to full load?"));
+        props.setLook(wlUseTempTable);
+        fdlUseTempTable = new FormData();
+        fdlUseTempTable.left = new FormAttachment(0, 0);
+        fdlUseTempTable.right = new FormAttachment(middle, -margin);
+        fdlUseTempTable.top = new FormAttachment(wTableName, margin);
+        wlUseTempTable.setLayoutData(fdlUseTempTable);
+        wbUseTempTable = new Button(shell, SWT.CHECK);
+        props.setLook(wbUseTempTable);
+        fdUseTempTable = new FormData();
+        fdUseTempTable.left = new FormAttachment(middle, 0);
+        fdUseTempTable.right = new FormAttachment(97, 0);
+        fdUseTempTable.top = new FormAttachment(wTableName, margin);
+        wbUseTempTable.setLayoutData(fdUseTempTable);
 
-        // ReplaceChars
-        wlReplaceChars = new Label(shell, SWT.RIGHT);
-        wlReplaceChars.setText("ObfusDialog.replaceChars.Label"); //$NON-NLS-1$
-        props.setLook(wlReplaceChars);
-        fdlReplaceChars = new FormData();
-        fdlReplaceChars.left = new FormAttachment(0, 0);
-        fdlReplaceChars.top = new FormAttachment(wNumberN, margin);
-        fdlReplaceChars.right = new FormAttachment(middle, -margin);
-        wlReplaceChars.setLayoutData(fdlReplaceChars);
-        wReplaceChars = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-        props.setLook(wReplaceChars);
-        fdReplaceChars = new FormData();
-        fdReplaceChars.left = new FormAttachment(middle, 0);
-        fdReplaceChars.top = new FormAttachment(wNumberN, margin);
-        fdReplaceChars.right = new FormAttachment(70, 0);
-        wReplaceChars.setLayoutData(fdReplaceChars);
+        wlTempTableName = new Label(shell, SWT.RIGHT);
+        wlTempTableName.setText(Messages.getString("temp table name"));
+        props.setLook(wlTempTableName);
+        fdlTempTableName = new FormData();
+        fdlTempTableName.left = new FormAttachment(0, 0);
+        fdlTempTableName.right = new FormAttachment(middle, -margin);
+        fdlTempTableName.top = new FormAttachment(wbUseTempTable, margin);
+        wlTempTableName.setLayoutData(fdlTempTableName);
+        wTempTableName = new Text(shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+        props.setLook(wTempTableName);
+        fdTempTableName = new FormData();
+        fdTempTableName.left = new FormAttachment(middle, 0);
+        fdTempTableName.right = new FormAttachment(97, 0);
+        fdTempTableName.top = new FormAttachment(wbUseTempTable, margin);
+        wTempTableName.setLayoutData(fdTempTableName);
 
-        // THE BUTTONS
-        wOK=new Button(shell, SWT.PUSH);
-        wOK.setText("System.Button.OK"); //$NON-NLS-1$
-        wCancel=new Button(shell, SWT.PUSH);
-        wCancel.setText("System.Button.Cancel"); //$NON-NLS-1$
+        wConfigTabFolder = new CTabFolder(shell, SWT.BORDER);
+        props.setLook(wConfigTabFolder, Props.WIDGET_STYLE_TAB);
+        wConfigTabFolder.setSimple(false);
 
-        setButtonPositions(new Button[] { wOK, wCancel }, margin, null);
+        addMainTab();
+
+        fdConfigTabFolder = new FormData();
+        fdConfigTabFolder.left = new FormAttachment(0, 0);
+        fdConfigTabFolder.right = new FormAttachment(100, 0);
+        fdConfigTabFolder.top = new FormAttachment(wTempTableName, margin);
+        wConfigTabFolder.setLayoutData(fdConfigTabFolder);
+        wConfigTabFolder.setSelection(0);
+
+        wOK = new Button(shell, SWT.PUSH);
+        wOK.setText(Messages.getString("System.Button.OK"));
+        wCancel = new Button(shell, SWT.PUSH);
+        wCancel.setText(Messages.getString("System.Button.Cancel"));
+
+        setButtonPositions(new Button[]{wOK, wCancel}, margin, null);
 
         // Add listeners
-        lsOK       = new Listener() { public void handleEvent(Event e) { ok();        } };
-        lsCancel   = new Listener() { public void handleEvent(Event e) { cancel();    } };
+        lsOK = e -> ok();
 
-        wOK.addListener    (SWT.Selection, lsOK    );
+        lsCancel = e -> cancel();
+
+        wOK.addListener(SWT.Selection, lsOK);
         wCancel.addListener(SWT.Selection, lsCancel);
 
-        lsDef=new SelectionAdapter() { public void widgetDefaultSelected(SelectionEvent e) { ok(); } };
 
-        wStepname.addSelectionListener( lsDef );
+        shell.addShellListener(new ShellAdapter() {
+            public void shellClosed(ShellEvent e) {
+                cancel();
+            }
+        });
 
-        // Detect X or ALT-F4 or something that kills this window...
-        shell.addShellListener(	new ShellAdapter() { public void shellClosed(ShellEvent e) { cancel(); } } );
-
-
-
-        // Set the shell size, based upon previous time...
-        setSize();
 
         getData();
 
+        setSize();
+
+        meta.setChanged(true);
+
         shell.open();
-        while (!shell.isDisposed())
-        {
-            if (!display.readAndDispatch()) display.sleep();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
         }
+
         return stepname;
     }
 
-    public void setFlags()
-    {
+    private void addMainTab() {
+        wMainConfigTab = new CTabItem(wConfigTabFolder, SWT.None);
+        wMainConfigTab.setText("主选项");
+
+        wMainConfigComp = new Composite(wConfigTabFolder, SWT.NONE);
+        props.setLook(wMainConfigComp);
+
+        mainConfigLayout = new FormLayout();
+        mainConfigLayout.marginWidth = 30;
+        mainConfigLayout.marginHeight = 30;
+        wMainConfigComp.setLayout(mainConfigLayout);
+
+        wlExceptionLogFileName = new Label(wMainConfigComp, SWT.RIGHT);
+        wlExceptionLogFileName.setText(Messages.getString("exception log fileName"));
+        props.setLook(wlExceptionLogFileName);
+        fdlExceptionLogFileName = new FormData();
+        fdlExceptionLogFileName.left = new FormAttachment(0, 0);
+        fdlExceptionLogFileName.right = new FormAttachment(middle, -margin);
+        fdlExceptionLogFileName.top = new FormAttachment(0, margin + 5);
+        wlExceptionLogFileName.setLayoutData(fdlExceptionLogFileName);
+        wbExceptionLogFileName = new Button(wMainConfigComp, SWT.PUSH | SWT.CENTER);
+        props.setLook(wbExceptionLogFileName);
+        wbExceptionLogFileName.setText(Messages.getString("browse"));
+        fdbExceptionLogFileName = new FormData();
+        fdbExceptionLogFileName.right = new FormAttachment(100, 0);
+        fdbExceptionLogFileName.top = new FormAttachment(0, margin + 5);
+        wbExceptionLogFileName.setLayoutData(fdbExceptionLogFileName);
+        wExceptionLogFileName = new Text(wMainConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        props.setLook(wExceptionLogFileName);
+        fdExceptionLogFileName = new FormData();
+        fdExceptionLogFileName.left = new FormAttachment(middle, 0);
+        fdExceptionLogFileName.right = new FormAttachment(wbExceptionLogFileName, -margin);
+        fdExceptionLogFileName.top = new FormAttachment(0, margin + 5);
+        wExceptionLogFileName.setLayoutData(fdExceptionLogFileName);
+
+        wbExceptionLogFileName.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+                dialog.setFilterExtensions(new String[]{"*.txt", "*"});
+                if (wExceptionLogFileName.getText() != null) {
+                    dialog.setFileName(wExceptionLogFileName.getText());
+                }
+                dialog.setFilterNames(new String[]{
+                        Messages.getString("*.txt"),
+                        Messages.getString("所有文件")});
+                if (dialog.open() != null) {
+                    wExceptionLogFileName.setText(dialog.getFilterPath()
+                            + System.getProperty("file.separator") + dialog.getFileName());
+                }
+            }
+        });
+        wMainConfigComp.layout();
+        wMainConfigTab.setControl(wMainConfigComp);
     }
+
 
     /**
-     * Copy information from the meta-data input to the dialog fields.
+     * Copy information from the meta-data meta to the dialog fields.
      */
-    public void getData()
-    {
-
+    public void getData() {
+        if (!StringUtils.isEmpty(meta.getDbName())) {
+            wDBName.setText(meta.getDbName());
+        }
+        if (!StringUtils.isEmpty(meta.getTableName())) {
+            wTableName.setText(meta.getTableName());
+        }
+        if (!StringUtils.isEmpty(meta.getPropertyFileName())) {
+            wPropertyFile.setText(meta.getPropertyFileName());
+        }
+        if (!StringUtils.isEmpty(meta.getTempTableName())) {
+            wTempTableName.setText(meta.getTempTableName());
+        }
+        wbUseTempTable.setSelection(meta.isUseTempTable());
     }
 
-    private void cancel()
-    {
-
+    private void cancel() {
+        //设置之后setsize才能生效
+        meta.setChanged(true);
         dispose();
     }
 
 
-
-
-    private void ok()
-    {
-        // Get the information for the dialog into the input structure.
-
-        System.out.println("zlc");
-//        System.out.println("ddd");
+    private void ok() {
+        // Get the information for the dialog into the meta structure.
+        meta.setDbName(wDBName.getText());
+        meta.setTableName(wTableName.getText());
+        meta.setPropertyFileName(wPropertyFile.getText());
+        meta.setTempTableName(wTempTableName.getText());
+        meta.setUseTempTable(wbUseTempTable.getSelection());
         dispose();
     }
 
 
-
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getName();
     }
 }

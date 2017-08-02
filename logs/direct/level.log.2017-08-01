@@ -1,0 +1,6 @@
+2017-08-01 16:41:51  [ Distributed-Log 分布式插件 - 分布式全量加载:0 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86) One partition ready for table, row count: 4
+2017-08-01 16:41:51  [ Distributed-Log 分布式插件 - 分布式全量加载:35 ] - [ INFO ] db.table.AbstractPartitionCombiner.combine(AbstractPartitionCombiner.java:58) table table doesn't meet the combining requirements, return
+2017-08-01 19:10:45  [ Distributed-Log 分布式插件 - 分布式全量加载:8934932 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86) One partition ready for ${TEMPTABLENAME}, row count: 4
+2017-08-01 19:10:45  [ Distributed-Log 分布式插件 - 分布式全量加载:8934944 ] - [ INFO ] db.table.AbstractPartitionCombiner.combine(AbstractPartitionCombiner.java:58) table ${TEMPTABLENAME} doesn't meet the combining requirements, return
+2017-08-01 19:23:44  [ Distributed-Log 分布式插件 - 分布式全量加载:9713618 ] - [ INFO ] db.table.writer.MassDataWriter.commit(MassDataWriter.java:86) One partition ready for zlctest, row count: 4
+2017-08-01 19:23:44  [ Distributed-Log 分布式插件 - 分布式全量加载:9713625 ] - [ INFO ] db.table.AbstractPartitionCombiner.combine(AbstractPartitionCombiner.java:58) table zlctest doesn't meet the combining requirements, return
