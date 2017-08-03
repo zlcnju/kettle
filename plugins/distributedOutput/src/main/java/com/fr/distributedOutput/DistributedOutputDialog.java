@@ -135,6 +135,51 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
         fdStepname.right = new FormAttachment(97, 0);
         wStepname.setLayoutData(fdStepname);
 
+        addUpperBound();
+
+        wConfigTabFolder = new CTabFolder(shell, SWT.BORDER);
+        props.setLook(wConfigTabFolder, Props.WIDGET_STYLE_TAB);
+        wConfigTabFolder.setSimple(false);
+
+        addMainTab();
+        addTableOperateTab();
+
+        fdConfigTabFolder = new FormData();
+        fdConfigTabFolder.left = new FormAttachment(0, 0);
+        fdConfigTabFolder.right = new FormAttachment(97, 0);
+        fdConfigTabFolder.top = new FormAttachment(wTempTableName, margin);
+        fdConfigTabFolder.bottom = new FormAttachment(100, -50);
+        wConfigTabFolder.setLayoutData(fdConfigTabFolder);
+        wConfigTabFolder.setSelection(0);
+
+        wOK = new Button(shell, SWT.PUSH);
+        wOK.setText(Messages.getString("System.Button.OK"));
+        wCancel = new Button(shell, SWT.PUSH);
+        wCancel.setText(Messages.getString("System.Button.Cancel"));
+
+        setButtonPositions(new Button[]{wOK, wCancel}, margin, null);
+
+
+        addListener();
+
+        getData();
+
+        //按照上一次调整过的大小初始化本shell
+        setSize();
+
+        meta.setChanged(true);
+
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+
+        return stepname;
+    }
+
+    private void addUpperBound() {
         wlPropertyFile = new Label(shell, SWT.RIGHT);
         wlPropertyFile.setText(Messages.getString("DistributedOutput.Property.FileName"));
         props.setLook(wlPropertyFile);
@@ -158,22 +203,6 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
         fdPropertyFile.top = new FormAttachment(wStepname, margin + 5);
         wPropertyFile.setLayoutData(fdPropertyFile);
 
-        wbPropertyFile.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-                dialog.setFilterExtensions(new String[]{"*.properties", "*"});
-                if (wPropertyFile.getText() != null) {
-                    dialog.setFileName(wPropertyFile.getText());
-                }
-                dialog.setFilterNames(new String[]{
-                        Messages.getString("DistributedOutput.PropertyFile.Suffix"),
-                        Messages.getString("DistributedOutput.AllFile.Suffix")});
-                if (dialog.open() != null) {
-                    wPropertyFile.setText(dialog.getFilterPath()
-                            + System.getProperty("file.separator") + dialog.getFileName());
-                }
-            }
-        });
 
         wlDBName = new Label(shell, SWT.RIGHT);
         props.setLook(wlDBName);
@@ -236,36 +265,72 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
         fdTempTableName.right = new FormAttachment(97, 0);
         fdTempTableName.top = new FormAttachment(wbUseTempTable, margin);
         wTempTableName.setLayoutData(fdTempTableName);
+    }
 
-        wConfigTabFolder = new CTabFolder(shell, SWT.BORDER);
-        props.setLook(wConfigTabFolder, Props.WIDGET_STYLE_TAB);
-        wConfigTabFolder.setSimple(false);
+    private void addListener(){
+        wbPropertyFile.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+                dialog.setFilterExtensions(new String[]{"*.properties", "*"});
+                if (wPropertyFile.getText() != null) {
+                    dialog.setFileName(wPropertyFile.getText());
+                }
+                dialog.setFilterNames(new String[]{
+                        Messages.getString("DistributedOutput.PropertyFile.Suffix"),
+                        Messages.getString("DistributedOutput.AllFile.Suffix")});
+                if (dialog.open() != null) {
+                    wPropertyFile.setText(dialog.getFilterPath()
+                            + System.getProperty("file.separator") + dialog.getFileName());
+                }
+            }
+        });
 
-        addMainTab();
-        addTableOperateTab();
+        wbUseTempTable.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                if(wbUseTempTable.getSelection()){
+//                    wTempTableName.setEditable(true);
+                    wTempTableName.setEnabled(true);
+                }else {
+//                    wTempTableName.setEditable(false);
+                    wTempTableName.setEnabled(false);
+                }
+            }
+        });
 
-        fdConfigTabFolder = new FormData();
-        fdConfigTabFolder.left = new FormAttachment(0, 0);
-        fdConfigTabFolder.right = new FormAttachment(97, 0);
-        fdConfigTabFolder.top = new FormAttachment(wTempTableName, margin);
-        fdConfigTabFolder.bottom = new FormAttachment(100, -50);
-        wConfigTabFolder.setLayoutData(fdConfigTabFolder);
-        wConfigTabFolder.setSelection(0);
-
-        wOK = new Button(shell, SWT.PUSH);
-        wOK.setText(Messages.getString("System.Button.OK"));
-        wCancel = new Button(shell, SWT.PUSH);
-        wCancel.setText(Messages.getString("System.Button.Cancel"));
-
-        setButtonPositions(new Button[]{wOK, wCancel}, margin, null);
-
-        // Add listeners
         lsOK = e -> ok();
-
         lsCancel = e -> cancel();
-
         wOK.addListener(SWT.Selection, lsOK);
         wCancel.addListener(SWT.Selection, lsCancel);
+
+        //////////////////////////////////////////////////
+        /////table operate tab
+        /////////////////////////////////////////////////
+        Listener lsCreateTable = e -> createTable();
+        wbCreateTable.addListener(SWT.SELECTED, lsCreateTable);
+        Listener lsDeleteTable = e -> deleteTable();
+        wbDeleteTable.addListener(SWT.SELECTED, lsDeleteTable);
+
+
+        //////////////////////////////////////////////////
+        /////main config tab
+        /////////////////////////////////////////////////
+        wbExceptionLogFileName.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+                dialog.setFilterExtensions(new String[]{"*.txt", "*"});
+                if (wExceptionLogFileName.getText() != null) {
+                    dialog.setFileName(wExceptionLogFileName.getText());
+                }
+                dialog.setFilterNames(new String[]{
+                        Messages.getString("DistributedOutput.Txt.Suffix"),
+                        Messages.getString("DistributedOutput.AllFile.Suffix")});
+                if (dialog.open() != null) {
+                    wExceptionLogFileName.setText(dialog.getFilterPath()
+                            + System.getProperty("file.separator") + dialog.getFileName());
+                }
+            }
+        });
 
 
         shell.addShellListener(new ShellAdapter() {
@@ -273,22 +338,6 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
                 cancel();
             }
         });
-
-
-        getData();
-
-        setSize();
-
-        meta.setChanged(true);
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
-        return stepname;
     }
 
     private void addMainTab() {
@@ -326,23 +375,6 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
         fdExceptionLogFileName.top = new FormAttachment(0, margin + 5);
         wExceptionLogFileName.setLayoutData(fdExceptionLogFileName);
 
-        wbExceptionLogFileName.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-                FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-                dialog.setFilterExtensions(new String[]{"*.txt", "*"});
-                if (wExceptionLogFileName.getText() != null) {
-                    dialog.setFileName(wExceptionLogFileName.getText());
-                }
-                dialog.setFilterNames(new String[]{
-                        Messages.getString("DistributedOutput.Txt.Suffix"),
-                        Messages.getString("DistributedOutput.AllFile.Suffix")});
-                if (dialog.open() != null) {
-                    wExceptionLogFileName.setText(dialog.getFilterPath()
-                            + System.getProperty("file.separator") + dialog.getFileName());
-                }
-            }
-        });
-//        wMainConfigComp.layout();
         wMainConfigTab.setControl(wMainConfigComp);
     }
 
@@ -429,12 +461,6 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
 
         setButtonPositions(new Button[]{wbCreateTable, wbDeleteTable}, margin, wColumnList);
 
-        Listener lsCreateTable = e -> createTable();
-        wbCreateTable.addListener(SWT.SELECTED, lsCreateTable);
-
-        Listener lsDeleteTable = e -> deleteTable();
-        wbDeleteTable.addListener(SWT.SELECTED, lsDeleteTable);
-
         fdFileComp = new FormData();
         fdFileComp.left = new FormAttachment(0, 0);
         fdFileComp.top = new FormAttachment(wTableName, 0);
@@ -454,9 +480,6 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
         wTableOperateTab.setControl(wFileSComp);
     }
 
-    /**
-     * Copy information from the meta-data meta to the dialog fields.
-     */
     public void getData() {
         if (!StringUtils.isEmpty(meta.getDbName())) {
             wDBName.setText(meta.getDbName());
@@ -478,7 +501,6 @@ public class DistributedOutputDialog extends BaseStepDialog implements StepDialo
         meta.setChanged(true);
         dispose();
     }
-
 
     private void ok() {
         // Get the information for the dialog into the meta structure.
