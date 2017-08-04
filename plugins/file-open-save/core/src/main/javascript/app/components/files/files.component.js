@@ -31,8 +31,9 @@ define([
   "../../services/data.service",
   "../utils",
   "text!./files.html",
+  "pentaho/i18n-osgi!file-open-save.messages",
   "css!./files.css"
-], function(dataService, utils, filesTemplate) {
+], function(dataService, utils, filesTemplate, i18n) {
   "use strict";
 
   var options = {
@@ -44,14 +45,16 @@ define([
       onFileDuplicate: '&',
       onFolderDuplicate: '&',
       onError: '&',
-      onRename: '&'
+      onRename: '&',
+      onEditStart: '&',
+      onEditComplete: '&'
     },
     template: filesTemplate,
     controllerAs: "vm",
     controller: filesController
   };
 
-  filesController.$inject = [dataService.name];
+  filesController.$inject = [dataService.name, "$timeout"];
 
   /**
    * The Files Controller.
@@ -60,7 +63,7 @@ define([
    *
    * @param {Object} dt - Angular service that contains helper functions for the files component controller
    */
-  function filesController(dt) {
+  function filesController(dt, $timeout) {
     var vm = this;
     vm.$onInit = onInit;
     vm.$onChanges = onChanges;
@@ -81,9 +84,9 @@ define([
      * bindings initialized. We use this hook to put initialization code for our controller.
      */
     function onInit() {
-      vm.nameHeader = "Name";
-      vm.typeHeader = "Type";
-      vm.lastSaveHeader = "Last saved";
+      vm.nameHeader = i18n.get("file-open-save-plugin.files.name.header");
+      vm.typeHeader = i18n.get("file-open-save-plugin.files.type.header");
+      vm.modifiedHeader = i18n.get("file-open-save-plugin.files.modified.header");
       _setSort(0, false, 'name');
       vm.numResults = 0;
     }
@@ -96,8 +99,10 @@ define([
      */
     function onChanges(changes) {
       if (changes.folder) {
-        vm.selectedFile = null;
-        _setSort(0, false, 'name');
+        $timeout(function() {
+          vm.selectedFile = null;
+          _setSort(0, false, 'name');
+        }, 200);
       }
     }
 
@@ -118,8 +123,10 @@ define([
      * @param {Object} file - file object.
      */
     function selectFile(file) {
-      vm.selectedFile = file;
-      vm.onSelect({selectedFile: file});
+      if (vm.selectedFile !== file) {
+        vm.selectedFile = file;
+        vm.onSelect({selectedFile: file});
+      }
     }
 
     /**
@@ -165,45 +172,112 @@ define([
      * Rename the selected file.
      */
     function rename(file, current, previous, errorCallback) {
-      if (file.new) {
-        file.new = false;
-        dt.create(file.parent, current).then(function(response) {
+      if (current) {
+        if (file.new) {
+          _createFolder(file, current, previous, errorCallback);
+        } else {
+          _renameFile(file, current, previous, errorCallback);
+        }
+      }
+      vm.onEditComplete();
+    }
+
+    /**
+     * Create a new folder
+     *
+     * @param file
+     * @param current
+     * @param previous
+     * @param errorCallback
+     * @private
+     */
+    function _createFolder(file, current, previous, errorCallback) {
+      var newName = current;
+      if (_hasDuplicate(current, file)) {
+        file.newName = current;
+        errorCallback();
+        _doDuplicateError(file);
+        newName = previous;
+      }
+      file.new = false;
+      dt.create(file.parent, newName).then(function(response) {
+        var index = file.path.lastIndexOf("/");
+        var oldPath = file.path;
+        var newPath = file.path.substr(0, index) + "/" + newName;
+        vm.onRename({oldPath:oldPath, newPath:newPath, newName:newName});
+        file.objectId = response.data.objectId;
+        file.parent = response.data.parent;
+        file.path = response.data.path;
+        file.name = newName;
+      }, function() {
+        vm.onError();
+      });
+    }
+
+    /**
+     * Rename an existing file/folder
+     *
+     * @param file
+     * @param current
+     * @param previous
+     * @param errorCallback
+     * @private
+     */
+    function _renameFile(file, current, previous, errorCallback) {
+      if (_hasDuplicate(current, file)) {
+        file.newName = current;
+        errorCallback();
+        _doDuplicateError(file);
+        return;
+      }
+      dt.rename(file.objectId.id, file.path, current, file.type).then(function(response) {
+        file.name = current;
+        file.objectId = response.data;
+        if (file.type === "folder") {
           var index = file.path.lastIndexOf("/");
           var oldPath = file.path;
           var newPath = file.path.substr(0, index) + "/" + current;
           vm.onRename({oldPath:oldPath, newPath:newPath, newName:current});
-          file.objectId = response.data.objectId;
-          file.parent = response.data.parent;
-          file.path = response.data.path;
-          file.name = current;
-        }, function() {
+        }
+      }, function(response) {
+        file.newName = current;
+        errorCallback();
+        if (response.status === 304) {
           vm.onError();
-        });
+        }
+        if (response.status === 409) {
+          _doDuplicateError(file);
+        }
+      });
+    }
+
+    /**
+     * Show the error for a duplicate file/folder name
+     *
+     * @param file
+     * @private
+     */
+    function _doDuplicateError(file) {
+      if (file.type === "folder") {
+        vm.onFolderDuplicate();
       } else {
-        dt.rename(file.objectId.id, file.path, current, file.type).then(function(response) {
-          file.name = current;
-          file.objectId = response.data;
-          if (file.type === "folder") {
-            var index = file.path.lastIndexOf("/");
-            var oldPath = file.path;
-            var newPath = file.path.substr(0, index) + "/" + current;
-            vm.onRename({oldPath:oldPath, newPath:newPath, newName:current});
-          }
-        }, function(response) {
-          file.newName = current;
-          errorCallback();
-          if (response.status === 304) {
-            vm.onError();
-          }
-          if (response.status === 409) {
-            if (file.type === "folder") {
-              vm.onFolderDuplicate();
-            } else {
-              vm.onFileDuplicate();
-            }
-          }
-        });
+        vm.onFileDuplicate();
       }
+    }
+
+    /**
+     * Checks for a duplicate name
+     */
+    function _hasDuplicate(name, file) {
+      for (var i = 0; i < vm.folder.children.length; i++) {
+        var check = vm.folder.children[i];
+        if (check !== file) {
+          if (check.name.toLowerCase() === name.toLowerCase() && check.type === file.type) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     /**
@@ -245,6 +319,7 @@ define([
 
     function onStart(file) {
       selectFile(file);
+      vm.onEditStart();
     }
 
     /**
@@ -252,10 +327,10 @@ define([
      **/
     function compareFiles(first, second) {
       var obj1 = first.value, obj2 = second.value;
-      // folders always first, even if reversed
+
       var comp = foldersFirst(obj1.type, obj2.type);
       if(comp != 0) {
-        return vm.sortReverse ? -comp : comp;
+        return comp;
       }
       // field compare
       switch(vm.sortField) {
@@ -265,7 +340,11 @@ define([
         default:
           var val1 = obj1[vm.sortField], val2 = obj2[vm.sortField];
           comp = (val1 < val2) ? -1 : (val1 > val2) ? 1 : 0;
+          if ( comp == 0 ) {
+            comp = utils.naturalCompare(obj1.name, obj2.name);
+          }
       }
+
       if ( comp != 0 ){
         return comp;
       }

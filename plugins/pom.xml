@@ -71,6 +71,7 @@
         <module>pur</module>
         <module>ms-access-bulk-loader</module>
         <module>xml</module>
+        <module>abort</module>
       </modules>
     </profile>
     

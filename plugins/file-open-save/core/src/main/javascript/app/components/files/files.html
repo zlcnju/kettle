@@ -22,7 +22,7 @@
           </div>
         </th>
         <th class="dateCell" ng-click="vm.sortFiles(vm._date)">
-          <div class="headerLabel">{{::vm.lastSaveHeader}}</div>
+          <div class="headerLabel">{{::vm.modifiedHeader}}</div>
           <div class="sortWrapper">
             <div class="sort"
                  ng-class="{sortUp: vm.sortState === 1 && vm.sortField === vm._date,
@@ -41,7 +41,7 @@
           ng-click="vm.selectFile(file)"
           ng-dblclick="vm.commitFile(file); $event.stopPropagation();"
           ng-class="{selected: vm.selectedFile === file}"
-          ng-hide="file.inResult === false"
+          ng-hide="file.inResult === false && vm.search.length > 0"
           title="{{file.name}}&#013;{{file.path}}">
         <td class="nameCell">
           <div class="fileTypeIcon"
@@ -63,7 +63,7 @@
           <div class="fileType">{{file.type}}</div>
         </td>
         <td class="dateCell">
-          <div class="fileLastSaved">
+          <div class="fileModified">
             <span>{{file.date | date: 'MM/dd/yy hh:mm a'}}</span>
           </div>
         </td>

@@ -50,20 +50,27 @@ define([
     controller: folderController
   };
 
+  folderController.$inject = ["$timeout"];
+
   /**
    * The Folder Controller.
    *
    * This provides the controller for the folder component.
+   * @param {Object} $timeout - $timeout object
    */
-  function folderController() {
+  function folderController($timeout) {
+    var _font = "14px OpenSansRegular";
+    var _iconsWidth = 58;
+    var _paddingLeft = 27;
     var vm = this;
     vm.$onInit = onInit;
-    vm.maxDepth = 0;
     vm.$onChanges = onChanges;
     vm.openFolder = openFolder;
     vm.selectFolder = selectFolder;
     vm.selectAndOpenFolder = selectAndOpenFolder;
     vm.compareFolders = compareFolders;
+    vm.maxWidth = 0;
+    vm.width = 0;
 
     /**
      * The $onInit hook of components lifecycle which is called on each controller
@@ -97,28 +104,24 @@ define([
      * @param {Object} folder - folder object
      */
     function openFolder(folder) {
-      vm.maxDepth = 0;
+      vm.maxWidth = 0;
       if (folder.hasChildren) {
         folder.open = folder.open !== true;
       }
       for (var i = 0; i < vm.folders.length; i++) {
         if (folder.open === true && vm.folders[i].depth === folder.depth + 1 && _isChild(folder, vm.folders[i])) {
           vm.folders[i].visible = true;
+          vm.folders[i].indent = vm.folders[i].depth * _paddingLeft;
         } else if (folder.open === false && vm.folders[i].depth > folder.depth && _isChild(folder, vm.folders[i])) {
           vm.folders[i].visible = false;
           vm.folders[i].open = false;
         }
-      }
-      _setDepth();
-      _setWidth();
-    }
-
-    function _setDepth() {
-      for (var i = 0; i < vm.folders.length; i++) {
-        if (vm.folders[i].open) {
-          vm.maxDepth = Math.max(vm.maxDepth, vm.folders[i].depth + 1);
+        if (vm.folders[i].visible) {
+          vm.maxWidth = Math.max(vm.maxWidth, utils.getTextWidth(vm.folders[i].name, _font) +
+            (vm.folders[i].depth * _paddingLeft) + _iconsWidth);
         }
       }
+      _setWidth();
     }
 
     /**
@@ -151,7 +154,12 @@ define([
      * @private
      */
     function _isChild(folder, child) {
-      return child.path.indexOf(folder.path) === 0;
+      var childPath = child.path;
+      var depthDiff = child.depth - folder.depth;
+      for (var i = 0; i < depthDiff; i++) {
+        childPath = childPath.slice(0, childPath.lastIndexOf("/"));
+      }
+      return childPath === folder.path || childPath === "";
     }
 
     /**
@@ -160,7 +168,9 @@ define([
      * @private
      */
     function _selectFolderByPath(path) {
+      vm.maxWidth = 0;
       for (var i = 0; i < vm.folders.length; i++) {
+        vm.folders[i].indent = vm.folders[i].depth * _paddingLeft;
         if (vm.folders[i].path === path) {
           selectFolder(vm.folders[i]);
           if (vm.autoExpand) {
@@ -168,8 +178,11 @@ define([
             vm.autoExpand = false;
           }
         }
+        if (vm.folders[i].visible) {
+          var width = utils.getTextWidth(vm.folders[i].name, _font);
+          vm.maxWidth = Math.max(vm.maxWidth, width + (vm.folders[i].depth * _paddingLeft) + _iconsWidth);
+        }
       }
-      _setDepth();
       _setWidth();
     }
 
@@ -207,17 +220,14 @@ define([
     }
 
     /**
-     * Sets the css width of each folder according to the maxDepth of all open folders in the dir tree.
+     * Sets vm.width for scrolling purposes.
      * @private
      */
     function _setWidth() {
-      for (var i = 0; i < vm.folders.length; i++) {
-        if (vm.folders[i].depth <= vm.maxDepth) {
-          var width = "calc(100% + " + ((vm.maxDepth - vm.folders[i].depth) * 27) + "px)";
-          vm.folders[i].width = width;
-          vm.folders[i].indent = (vm.folders[i].depth * 27) + "px";
-        }
-      }
+      $timeout(function() {
+        var tmpClientWidth = document.getElementById("directoryTreeArea").clientWidth;
+        vm.width = vm.maxWidth > tmpClientWidth ? vm.maxWidth : tmpClientWidth;
+      }, 0);
     }
 
     function compareFolders(first, second) {
@@ -236,7 +246,6 @@ define([
       }
       return first.index - second.index;
     }
-
   }
 
   return {
